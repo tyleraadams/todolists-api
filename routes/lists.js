@@ -18,6 +18,16 @@ router.get('/', function(req, res, next) {
   });
 });
 
+router.post('/', function(req, res, next) {
+  List.forge({name: req.body.name}).save().then(list => {
+    const response = {};
+    response.status = 200;
+    // response.count = lists.length;
+    response.result = list;
+    res.send(response);
+  });
+});
+
 router.get('/:id', (req, res, next) => {
   new List({id: req.params.id}).fetch().then((list) => {
     const response = {};
@@ -36,6 +46,19 @@ router.get('/:id/todos', (req, res, next) => {
     response.count = todos.length;
     response.result = todos;
     res.send(response);
+  })
+});
+
+router.post('/:id/todos', (req, res, next) => {
+  new List({id: req.params.id}).fetch().then(list => {
+    list.related('todos').create({text: req.body.text, isComplete: false}).then(todo => {
+      const response = {};
+      response.result = {};
+      response.result.todo = todo;
+      response.result.list = list;
+      res.send(response);
+    });
+
   })
 });
 
